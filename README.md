@@ -89,6 +89,10 @@ To run a sample, complete these steps:
 
 ## Release Notes
 
+### Release 1.3.0.swrve1
+
+* Swrve-specific fork of awslabs/amazon-kinesis-connectors, applying some unmerged bug-fix pull requests
+
 ### Release 1.3.0 (November 17, 2016)
 * Upgraded the Amazon Kinesis Client Library to version 1.7.2.
 * Upgraded the AWS Java SDK to 1.11.14.
