@@ -14,18 +14,6 @@
  */
 package com.amazonaws.services.kinesis.connectors;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.InvalidStateException;
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.KinesisClientLibDependencyException;
@@ -33,16 +21,19 @@ import com.amazonaws.services.kinesis.clientlibrary.exceptions.ShutdownException
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.ThrottlingException;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorCheckpointer;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorRecordProcessor;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
-import com.amazonaws.services.kinesis.connectors.interfaces.IBuffer;
-import com.amazonaws.services.kinesis.connectors.interfaces.ICollectionTransformer;
-import com.amazonaws.services.kinesis.connectors.interfaces.IEmitter;
-import com.amazonaws.services.kinesis.connectors.interfaces.IFilter;
-import com.amazonaws.services.kinesis.connectors.interfaces.ITransformer;
-import com.amazonaws.services.kinesis.connectors.interfaces.ITransformerBase;
+import com.amazonaws.services.kinesis.connectors.interfaces.*;
 import com.amazonaws.services.kinesis.model.Record;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 public class KinesisConnectorRecordProcessorTest {
     // control object used to create mock dependencies
@@ -159,7 +150,7 @@ public class KinesisConnectorRecordProcessorTest {
 
         // Emitter behavior:
         // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
+        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class), EasyMock.anyString())).andReturn(
                 Collections.emptyList());
 
         // Checkpointer Behavior:
@@ -223,7 +214,7 @@ public class KinesisConnectorRecordProcessorTest {
 
         // Emitter behavior:
         // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andThrow(
+        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class), EasyMock.anyString())).andThrow(
                 new IOException());
         emitter.fail(EasyMock.anyObject(List.class));
         EasyMock.expectLastCall();
@@ -299,7 +290,7 @@ public class KinesisConnectorRecordProcessorTest {
 
         // Emitter behavior:
         // one call to emit
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
+        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class), EasyMock.anyString())).andReturn(
                 Collections.emptyList());
 
         // Checkpointer Behavior:
@@ -370,10 +361,10 @@ public class KinesisConnectorRecordProcessorTest {
 
         // uses the original list (i.e. emitItems)
         UnmodifiableBuffer<Object> unmodBuffer = new UnmodifiableBuffer<>(buffer, objectsAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(singleObjectAsList);
+        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer), EasyMock.anyString())).andReturn(singleObjectAsList);
         // uses the returned list (i.e. unprocessed)
         unmodBuffer = new UnmodifiableBuffer<>(buffer, singleObjectAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(Collections.emptyList());
+        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer), EasyMock.anyString())).andReturn(Collections.emptyList());
 
         // Done, so expect buffer clear and checkpoint
         buffer.getLastSequenceNumber();
@@ -445,7 +436,7 @@ public class KinesisConnectorRecordProcessorTest {
 
         // uses the original list (i.e. emitItems)
         UnmodifiableBuffer<Object> unmodBuffer = new UnmodifiableBuffer<>(buffer, objectsAsList);
-        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer))).andReturn(singleObjectAsList);
+        EasyMock.expect(emitter.emit(EasyMock.eq(unmodBuffer), EasyMock.anyString())).andReturn(singleObjectAsList);
 
         // only one retry, so now we should expect fail to be called.
         emitter.fail(singleObjectAsList);
@@ -526,7 +517,7 @@ public class KinesisConnectorRecordProcessorTest {
         // expect flush cycle.
         // Get records from buffer, emit, clear, then checkpoint
         EasyMock.expect(buffer.getRecords()).andReturn(Collections.emptyList());
-        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class))).andReturn(
+        EasyMock.expect(emitter.emit(EasyMock.anyObject(UnmodifiableBuffer.class), EasyMock.anyString())).andReturn(
                 Collections.emptyList());
         buffer.getLastSequenceNumber();
         EasyMock.expectLastCall().andReturn(null);

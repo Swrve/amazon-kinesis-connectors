@@ -14,20 +14,9 @@
  */
 package com.amazonaws.services.kinesis.connectors.elasticsearch;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
+import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
 import org.easymock.EasyMock;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
@@ -46,9 +35,15 @@ import org.elasticsearch.rest.RestStatus;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.kinesis.connectors.KinesisConnectorConfiguration;
-import com.amazonaws.services.kinesis.connectors.UnmodifiableBuffer;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ElasticsearchEmitterTest {
 
@@ -166,7 +161,7 @@ public class ElasticsearchEmitterTest {
 
         replay(elasticsearchClientMock, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture, mockBulkResponse);
 
-        List<ElasticsearchObject> failures = emitter.emit(buffer);
+        List<ElasticsearchObject> failures = emitter.emit(buffer, "shard0001");
         assertTrue(failures.isEmpty());
 
         verify(elasticsearchClientMock, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture, mockBulkResponse);
@@ -198,7 +193,7 @@ public class ElasticsearchEmitterTest {
         replay(elasticsearchClientMock, r1, r2, r3, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture,
                 mockBulkResponse);
 
-        List<ElasticsearchObject> failures = emitter.emit(buffer);
+        List<ElasticsearchObject> failures = emitter.emit(buffer, "shard0001");
         assertTrue(failures.isEmpty());
 
         verify(elasticsearchClientMock, r1, r2, r3, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture,
@@ -265,7 +260,7 @@ public class ElasticsearchEmitterTest {
                 mockBulkResponse, mockAdminClient, mockClusterAdminClient, mockHealthRequestBuilder, mockHealthFuture,
                 mockResponse);
 
-        List<ElasticsearchObject> failures = emitter.emit(buffer);
+        List<ElasticsearchObject> failures = emitter.emit(buffer, "shard0001");
         assertTrue(failures.size() == 1);
         // the emitter should return the exact object that failed
         assertEquals(failures.get(0), records.get(1));
@@ -314,7 +309,7 @@ public class ElasticsearchEmitterTest {
         replay(elasticsearchClientMock, r1, r2, r3, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture,
                 mockBulkResponse);
 
-        List<ElasticsearchObject> failures = emitter.emit(buffer);
+        List<ElasticsearchObject> failures = emitter.emit(buffer, "shard0001");
         assertTrue(failures.isEmpty());
 
         verify(elasticsearchClientMock, r1, r2, r3, buffer, mockBulkBuilder, mockIndexBuilder, mockFuture,
