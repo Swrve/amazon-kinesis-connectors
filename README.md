@@ -88,6 +88,7 @@ To run a sample, complete these steps:
 4. Scripts to start each of the samples will be available in `target/appassembler/bin`
 
 ## Release Notes
+
 ### Release 1.3.0 (November 17, 2016)
 * Upgraded the Amazon Kinesis Client Library to version 1.7.2.
 * Upgraded the AWS Java SDK to 1.11.14.
